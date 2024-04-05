@@ -7,9 +7,10 @@ import { MongooseAsyncConfig } from './common/config/mongoose.config';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { BooksModule } from './books/books.module';
+import { AssignmentsModule } from './assignments/assignments.module';
 
 @Module({
-  imports: [AuthModule, ConfigModule.forRoot(), MongooseModule.forRootAsync(MongooseAsyncConfig), UsersModule, BooksModule],
+  imports: [AuthModule, ConfigModule.forRoot(), MongooseModule.forRootAsync(MongooseAsyncConfig), UsersModule, BooksModule, AssignmentsModule],
   controllers: [AppController],
   providers: [AppService],
 })

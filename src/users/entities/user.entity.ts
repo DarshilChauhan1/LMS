@@ -30,6 +30,12 @@ export class User {
         url : string
     }
 
+    @Prop({type : 'enum', enum : [0,1], default : 1})
+    isActive : boolean;
+
+    @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'Assignment'})
+    assignments : mongoose.Schema.Types.ObjectId[]
+
     @Prop()
     refreshToken : string;
 

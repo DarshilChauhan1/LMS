@@ -30,5 +30,5 @@ export class Test {
     book_id : Book
 
     @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'User', required : true})
-    user_id : mongoose.Schema.Types.ObjectId
+    student_id : mongoose.Schema.Types.ObjectId
 }

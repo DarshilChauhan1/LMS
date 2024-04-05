@@ -15,4 +15,15 @@ export class UsersController {
     return this.usersService.singup(payload);
   }
 
+  //get all books 
+  //read a book
+  //Q&A with the ai
+  //get marks of students with query to search for individual
+  //student can see only his marks api
+  //user can update their profile
+  //modify marks
+  //student removal only valid to superadmin
+  // forgot password api for everyone
+  // students can see their assignments
+  //oAuth2.0 login
 }
