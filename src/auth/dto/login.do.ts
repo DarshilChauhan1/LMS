@@ -8,4 +8,8 @@ export class LoginDto{
     @IsNotEmpty()
     @IsString()
     password : string
+
+    @IsNotEmpty()
+    @IsString()
+    platform_field : string
 }

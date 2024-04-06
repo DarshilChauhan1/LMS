@@ -14,4 +14,7 @@ export class Book {
 
     @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'User'})
     studentId : mongoose.Schema.Types.ObjectId[]
+
+    @Prop({required : true})
+    standerd : string
 }
