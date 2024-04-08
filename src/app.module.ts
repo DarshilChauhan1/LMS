@@ -8,9 +8,13 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { BooksModule } from './books/books.module';
 import { AssignmentsModule } from './assignments/assignments.module';
+import { ProfilesModule } from './profiles/profiles.module';
+import { RolesModule } from './roles/roles.module';
+import { PermissionsModule } from './permissions/permissions.module';
+import { DataseedModule } from './dataseed/dataseed.module';
 
 @Module({
-  imports: [AuthModule, ConfigModule.forRoot(), MongooseModule.forRootAsync(MongooseAsyncConfig), UsersModule, BooksModule, AssignmentsModule],
+  imports: [AuthModule, ConfigModule.forRoot(), MongooseModule.forRootAsync(MongooseAsyncConfig), UsersModule, BooksModule, AssignmentsModule, ProfilesModule, RolesModule, PermissionsModule, DataseedModule],
   controllers: [AppController],
   providers: [AppService],
 })

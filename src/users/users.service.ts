@@ -11,7 +11,7 @@ export class UsersService {
   constructor(@InjectModel('User') private userModel: Model<User>) { }
 
   async singup(userPayload: CreateUserDto) {
-    const { name, username, email, password } = userPayload;
+    const { username, email, password } = userPayload;
     try {
       if (username && email && password) {
         //check if user already exists
@@ -19,7 +19,7 @@ export class UsersService {
         if (verifyUser) throw new ConflictException('User Already Exists');
         //if the user not exists create
         let hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await this.userModel.create({ name, username, email, password: hashedPassword })
+        const newUser = await this.userModel.create({ username, email, password: hashedPassword })
         return new ResponseBody(201, 'User Created Successfully', undefined, true);
       } else {
         throw new BadRequestException('All credentials are required')

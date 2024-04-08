@@ -6,7 +6,7 @@ import { ExceptionHandling } from 'src/common/filters/excpetion.filter';
 
 
 @UseFilters(ExceptionHandling)
-@Controller()
+@Controller('api/v1')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

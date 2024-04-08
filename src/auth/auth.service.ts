@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException, UnauthorizedExcepti
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from 'src/users/entities/user.entity';
-import { LoginDto } from './dto/login.do';
+import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt'
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -34,7 +34,6 @@ export class AuthService {
                     refresh_token : refresh_token,
                     user : {
                         _id : user._id,
-                        name : user.name,
                         username : user.username,
                         email : user.email
                     }

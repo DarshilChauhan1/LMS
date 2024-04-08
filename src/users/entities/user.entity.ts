@@ -1,14 +1,12 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
-import { Role } from "./role.entity";
+import { Role } from "../../roles/entities/role.entity";
 import { PlatformEnum } from "../enum/platform.enum";
 
 export type UserDocument = HydratedDocument<User>;
 
 @Schema({timestamps : true})
 export class User {
-    @Prop()
-    name : string
 
     @Prop({unique : true, trim : true, required : true})
     username : string;
@@ -23,16 +21,10 @@ export class User {
     platform_field : string
 
     @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'Role' })
-    role : Role;
+    role_id : Role;
 
     @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'Book'})
     books : mongoose.Schema.Types.ObjectId[]
-
-    @Prop({type : 'Object',required : false, default : {public_id : '', url : ''}})
-    avatar : {
-        public_id : string,
-        url : string
-    }
 
     @Prop({type : 'boolean', default : false})
     isActive :  boolean
@@ -48,9 +40,7 @@ export class User {
 
     @Prop({required : false, type : Date})
     forgotPasswordExpiry : Date
-
-    @Prop({required : false })
-    standard : string
+    
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

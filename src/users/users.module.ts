@@ -4,10 +4,11 @@ import { UsersController } from './users.controller';
 import * as bcrypt from 'bcrypt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSchema } from './entities/user.entity';
+import { Role, RoleSchema } from '../roles/entities/role.entity';
+import { PermissionSchema } from '../permissions/entities/permission.entity';
 
 @Module({
-  //Password save hook will auto encrypt password
-  imports: [MongooseModule.forFeature([{name : 'User', schema : UserSchema}])],
+  imports: [MongooseModule.forFeature([{name : 'User', schema : UserSchema}, {name : 'Role', schema : RoleSchema}, {name : 'Permissions', schema : PermissionSchema}])],
   controllers: [UsersController],
   providers: [UsersService],
 })

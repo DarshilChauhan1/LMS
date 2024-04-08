@@ -1,10 +1,11 @@
-import { Prop, Schema } from "@nestjs/mongoose";
-import mongoose from "mongoose";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { HydratedDocument } from "mongoose";
 import { RoleEnum } from "../enum/role.enum";
 
+export type RoleDocument = HydratedDocument<Role>
 @Schema({timestamps : true})
 export class Role{
-    @Prop({type : 'enum', enum : RoleEnum, required : true, default : RoleEnum.USER})
+    @Prop({ enum : RoleEnum, required : true, default : RoleEnum.USER})
     role : string;
 
     @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'User'})
@@ -14,3 +15,5 @@ export class Role{
     permissons : mongoose.Schema.Types.ObjectId[];
 
 }
+
+export const RoleSchema = SchemaFactory.createForClass(Role)

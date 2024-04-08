@@ -16,5 +16,5 @@ export class Book {
     studentId : mongoose.Schema.Types.ObjectId[]
 
     @Prop({required : true})
-    standerd : string
+    standard : string
 }
