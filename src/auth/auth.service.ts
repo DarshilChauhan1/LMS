@@ -13,9 +13,10 @@ import { GoogleLogin } from './dto/googleLogin.dto';
 @Injectable()
 export class AuthService {
     constructor(
-        private jwtService : JwtService,
+        private jwtService: JwtService,
         private configService: ConfigService,
-        @InjectModel('User') private userModel: Model<User>) {}
+        @InjectModel('User') private userModel: Model<User>) { }
+
     async login(payload: LoginDto) {
         try {
             const { password, username, platform_field } = payload
@@ -30,12 +31,12 @@ export class AuthService {
                 user.refreshToken = refresh_token
                 await user.save()
                 const responseData = {
-                    access_token : access_token,
-                    refresh_token : refresh_token,
-                    user : {
-                        _id : user._id,
-                        username : user.username,
-                        email : user.email
+                    access_token: access_token,
+                    refresh_token: refresh_token,
+                    user: {
+                        _id: user._id,
+                        username: user.username,
+                        email: user.email
                     }
                 }
                 return new ResponseBody(200, 'Login successfully', responseData, true)
@@ -47,18 +48,18 @@ export class AuthService {
         }
     }
 
-    async googleLogin(payload : GoogleLogin){
+    async googleLogin(payload: GoogleLogin) {
         console.log(payload);
         try {
-            const {username, email} = payload;
-            const user = await this.userModel.findOne({$or : [{email}, {username}], platform_field : PlatformEnum.GOOGLE});
+            const { username, email } = payload;
+            const user = await this.userModel.findOne({ $or: [{ email }, { username }], platform_field: PlatformEnum.GOOGLE });
             console.log(user);
             let responseData = {};
-            if(user){
-               responseData['user'] = user
+            if (user) {
+                responseData['user'] = user
             }
             // if user doesnot exists we create one
-            const newUser = await this.userModel.create({...payload, platform_field : PlatformEnum.GOOGLE});
+            const newUser = await this.userModel.create({ ...payload, platform_field: PlatformEnum.GOOGLE });
             console.log(newUser)
             responseData['user'] = newUser
             const access_token = await this.generateAccessToken(newUser._id.toString());
@@ -73,13 +74,13 @@ export class AuthService {
     }
 
 
-    private async generateAccessToken(_id : string){
-        let accessToken = await this.jwtService.signAsync({id : _id}, {secret : this.configService.get('ACCESS_TOKEN_SECRET'),expiresIn : '5h'});
+    private async generateAccessToken(_id: string) {
+        let accessToken = await this.jwtService.signAsync({ id: _id }, { secret: this.configService.get('ACCESS_TOKEN_SECRET'), expiresIn: '5h' });
         return accessToken
     }
 
-    private async generateRefreshToken(_id : string){
-        let refreshToken = await this.jwtService.signAsync({id : _id}, {secret : this.configService.get('REFRESH_TOKEN_SECRET'),expiresIn : '1d'});
+    private async generateRefreshToken(_id: string) {
+        let refreshToken = await this.jwtService.signAsync({ id: _id }, { secret: this.configService.get('REFRESH_TOKEN_SECRET'), expiresIn: '1d' });
         return refreshToken
     }
 }
