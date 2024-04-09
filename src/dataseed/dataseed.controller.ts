@@ -10,5 +10,10 @@ export class DataseedController {
   dataseedRoles(){
     return this.dataseedService.dataseedRole()
   }
+
+  @Get('permissions')
+  dataseedPermissions(){
+    return this.dataseedService.dataSeedPermission()
+  }
  
 }

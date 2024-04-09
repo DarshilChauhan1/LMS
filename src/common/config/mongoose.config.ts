@@ -7,4 +7,4 @@ export const MongooseAsyncConfig : MongooseModuleAsyncOptions = {
       uri: configService.get<string>('MONGODB_URI'),
     }),
     inject: [ConfigService],
-  }
+  } 

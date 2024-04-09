@@ -74,7 +74,7 @@ export class AuthService {
 
 
     private async generateAccessToken(_id : string){
-        let accessToken = await this.jwtService.signAsync({id : _id}, {secret : this.configService.get('ACCESS_TOKEN_SECRET'),expiresIn : '20m'});
+        let accessToken = await this.jwtService.signAsync({id : _id}, {secret : this.configService.get('ACCESS_TOKEN_SECRET'),expiresIn : '5h'});
         return accessToken
     }
 

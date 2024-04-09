@@ -1,8 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseFilters } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseFilters, UseGuards, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ExceptionHandling } from 'src/common/filters/excpetion.filter';
+import { AuthGuardJWT } from 'src/auth/auth.guard';
+import { Request } from 'express';
+import { CheckAbilities } from 'src/common/decorators/ability.decorator';
+import { AbilityGuard } from 'src/permissions/ability.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { CustomGuard } from 'src/permissions/custom.guard';
 
 
 @UseFilters(ExceptionHandling)
@@ -13,6 +19,14 @@ export class UsersController {
   @Post('signup')
   signUp(@Body() payload : CreateUserDto){
     return this.usersService.singup(payload);
+  }
+
+  //getallusers
+  @UseGuards(AuthGuardJWT, CustomGuard)
+  @ApiBearerAuth()
+  @Get('users/getall')
+  getAllUsers(){
+    return this.usersService.getAllUsers();
   }
 
   //get all books 

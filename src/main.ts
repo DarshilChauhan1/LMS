@@ -1,17 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { setupSwagger } from './common/config/swagger.config';
 
-async function bootstrap() {
+let swaggerDocument: any;
+
+export async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const config = new DocumentBuilder()
-  .setTitle('LMS')
-  .setDescription('The LMS API')
-  .setVersion('1.0')
-  .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  const document = setupSwagger(app);
   await app.listen(3000);
+  return document;
 }
-bootstrap();
+
+bootstrap().then((document) => {
+  swaggerDocument = document;
+});
+
+export { swaggerDocument };

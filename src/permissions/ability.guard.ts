@@ -6,11 +6,12 @@ import { Book } from "src/books/entities/book.entity";
 import { Test } from "src/tests/entities/test.entity";
 import { Profile } from "src/profiles/entities/profile.entity";
 import { Assignment } from "src/assignments/entities/assignment.entity";
-import { ActionEnum } from "./enum/action.enum";
+import { ActionEnum } from "../roles/enum/action.enum";
 import { CHECK_ABILITIES, RequiredRule } from "src/common/decorators/ability.decorator";
 import { Model } from "mongoose";
-import { Permission } from "../permissions/entities/permission.entity";
+import { Permission } from "./entities/permission.entity";
 import * as Mustache from 'mustache'
+import { InjectModel } from "@nestjs/mongoose";
 
 export type Subjects = InferSubjects<typeof User | typeof Book | typeof Test | typeof Profile | typeof Assignment | 'all'>
 
@@ -18,7 +19,8 @@ export type AppAbility = MongoAbility<[ActionEnum, Subjects]>
 
 export class AbilityGuard implements CanActivate{
     constructor(
-        @Inject('Permission') private permissionModel : Model<Permission>,
+        @InjectModel('User') private userModel : Model<User>,
+        @InjectModel('Permission') private permissionModel : Model<Permission>,
         private reflector : Reflector){}
     createAbility = (rules : RawRuleOf<AppAbility>[] )=> createMongoAbility(rules);
     async canActivate(context: ExecutionContext):  Promise<any> {
@@ -27,13 +29,19 @@ export class AbilityGuard implements CanActivate{
         const currentUser = context.switchToHttp().getRequest().user;
 
         //we will find the permissions for that user from permissions
-        const userPermissions = await this.permissionModel.find({role_id : currentUser.role_id});
+        const userRoleId = await this.userModel.findOne({_id : currentUser.id}).select('role_id');
+        console.log(userRoleId)
+
+        const userPermissions = await this.permissionModel.find({role_id : userRoleId.role_id}).select('conditions');
 
         const parseUserPermissions = this.parsedConditions(userPermissions, currentUser);
+        console.log("parsedUserPermissions", parseUserPermissions)
         
         try {
             const ability = this.createAbility(Object(parseUserPermissions));
-            console.log(ability);
+            for await (const rule of rules) {
+                
+            }
         } catch (error) {
             
         }

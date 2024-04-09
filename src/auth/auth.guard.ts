@@ -6,7 +6,7 @@ import { CustomError } from "src/helpers/Error/customError";
 
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthGuardJWT implements CanActivate {
     constructor(
         private configService: ConfigService,
         private readonly jwtService: JwtService) {}
