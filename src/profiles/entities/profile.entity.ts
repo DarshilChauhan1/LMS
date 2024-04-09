@@ -14,12 +14,6 @@ export class Profile {
     @Prop({required : true})
     standard : string;
 
-    @Prop({type : 'Object',required : false, default : {public_id : '', url : ''}})
-    avatar : {
-        public_id : string,
-        url : string
-    }
-
     @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'User'})
     student_id : mongoose.Schema.Types.ObjectId
 }
