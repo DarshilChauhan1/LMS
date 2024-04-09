@@ -9,9 +9,9 @@ import { AppService } from 'src/app.service';
 @Injectable()
 export class DataseedService {
   constructor(
-    private readonly appSevice : AppService,
-    @InjectModel('Permission') private permissionModel : Model<Permission>,
-    @InjectModel('Role') private roleModel : Model<Role>){}
+    private readonly appSevice: AppService,
+    @InjectModel('Permission') private permissionModel: Model<Permission>,
+    @InjectModel('Role') private roleModel: Model<Role>) { }
   async dataseedRole() {
     const roles = [
       { name: RoleEnum.USER },
@@ -29,15 +29,33 @@ export class DataseedService {
     const adminRole = await this.roleModel.findOne({ role: RoleEnum.SCHOOL_ADMIN });
     const routes = this.appSevice.getAllRoutes()
 
+    // flat map to get all the routes in a single array
+    const newRoutFlatMap = routes.flatMap((route) => route['route']);
+    
+    const existingRoutes = await this.permissionModel.find().select('route method')
+    //flat map for existing routes in permissions
+    const existingRouteFlatMap = existingRoutes.flatMap((route) => route);
 
-    //store permissions
-    for (const permission of routes) {
+    // will get unique routes
+    const uniqueRoutes = this.addAllUniqueRoutes(newRoutFlatMap, existingRouteFlatMap);
+    console.log("uniqueRoutes", uniqueRoutes);
+
+    // store permissions
+    for (const uniqueRoute of uniqueRoutes) {
       const permissionObj = {
-        route : permission['route']['path'],
-        method : permission['route']['method'],
-        role_id : [adminRole._id],
+        route: uniqueRoute['path'],
+        method: uniqueRoute['method'],
+        role_id: [adminRole._id],
       }
       await this.permissionModel.create(permissionObj);
     }
+  }
+
+  private addAllUniqueRoutes(newRoutes: any[], existingRoutes: any[]) {
+    const uniqueRoutes = [];
+    for (const route of newRoutes) {
+     existingRoutes.find((existingRoute)=> existingRoute['route'] === route['path'] && existingRoute['method'] === route['method']) == undefined ? uniqueRoutes.push(route) : null;
+    }
+    return uniqueRoutes;
   }
 }
