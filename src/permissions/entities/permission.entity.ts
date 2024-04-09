@@ -5,8 +5,8 @@ import mongoose, { HydratedDocument } from "mongoose";
 export type PermissionsDocument = HydratedDocument<Permissions>
 @Schema({timestamps : true})
 export class Permission{
-    @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'Role'})
-    role_id : Role[];
+    @Prop({type : [{type : mongoose.Schema.Types.ObjectId, ref : 'Role'}]})
+    role_id : mongoose.Schema.Types.ObjectId[];
 
     @Prop({required : true})
     route : string;

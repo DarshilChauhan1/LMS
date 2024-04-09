@@ -43,4 +43,15 @@ export class UsersService {
       throw error
     }
   }
+
+  async updateUser(id : string, payload : any){
+    try {
+      const user = await this.userModel.findById(id);
+      if(!user) throw new BadRequestException('User not found');
+      await this.userModel.findByIdAndUpdate(id, payload);
+      return new ResponseBody(200, 'User Updated Successfully', undefined, true);
+    } catch (error) {
+      throw error
+    }
+  }
 }

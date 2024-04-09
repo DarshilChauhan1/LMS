@@ -12,18 +12,14 @@ export class CustomGuard implements CanActivate{
     async canActivate(context: ExecutionContext):   Promise<boolean> {
         const request = context.switchToHttp().getRequest();
         const userId = request.user.id;
-        const route = request.route.path;
+        let route = request.route.path;
+        let params = request.params;
         const method = request.route.stack[0].method;
 
-        console.log(route, method, userId)
-
+        // todo authentication based on params
         const getUserRole = await this.userModel.findById(userId).select('role_id');
 
-        console.log(getUserRole)
-
         const permissions = await this.permissionModel.find({role_id : getUserRole.role_id, method : method, route : route});
-
-        console.log(permissions);
 
         if(!permissions || permissions.length == 0) throw new UnauthorizedException('You are not authorized to access this route');
         if(permissions){

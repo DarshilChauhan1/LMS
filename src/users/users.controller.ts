@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseFilters, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseFilters, UseGuards, Req, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -6,7 +6,6 @@ import { ExceptionHandling } from 'src/common/filters/excpetion.filter';
 import { AuthGuardJWT } from 'src/auth/auth.guard';
 import { Request } from 'express';
 import { CheckAbilities } from 'src/common/decorators/ability.decorator';
-import { AbilityGuard } from 'src/permissions/ability.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { CustomGuard } from 'src/permissions/custom.guard';
 
@@ -27,6 +26,13 @@ export class UsersController {
   @Get('users/getall')
   getAllUsers(){
     return this.usersService.getAllUsers();
+  }
+
+  @Put('users/update/:id')
+  @UseGuards(AuthGuardJWT, CustomGuard)
+  @ApiBearerAuth()
+  updateUser(@Param('id') id : string, @Body() payload : UpdateUserDto){
+    return this.usersService.updateUser(id, payload);
   }
 
   //get all books 
