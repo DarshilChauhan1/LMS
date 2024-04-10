@@ -20,6 +20,14 @@ export class UsersController {
     return this.usersService.singup(payload);
   }
 
+  //logout
+  @UseGuards(AuthGuardJWT)
+  @ApiBearerAuth()
+  @Post('logout')
+  logout(@Req() req : Request){
+    return this.usersService.logout(req['user'].id);
+  }
+
   //getallusers
   @UseGuards(AuthGuardJWT, CustomGuard)
   @ApiBearerAuth()
@@ -28,16 +36,33 @@ export class UsersController {
     return this.usersService.getAllUsers();
   }
 
-  @Put('users/update/:id')
+  @UseGuards(AuthGuardJWT)
+  @ApiBearerAuth()
+  @Post('refresh')
+  getRefreshToken(@Body() paylaod : {refreshToken : string}, @Req() req : Request){
+    return this.usersService.getRefreshToken({userId : req['user'].id, refreshToken : paylaod.refreshToken});
+  }
+
+  @Put('users/:id')
   @UseGuards(AuthGuardJWT, CustomGuard)
   @ApiBearerAuth()
   updateUser(@Param('id') id : string, @Body() payload : UpdateUserDto){
     return this.usersService.updateUser(id, payload);
   }
 
+   //Q&A with the ai
+   @UseGuards(AuthGuardJWT, CustomGuard)
+   @ApiBearerAuth()
+   @Post('users/ask-ai')
+   askAI(@Body() payload : {question : string}){
+     return this.usersService.askAI(payload.question);
+   }
+
+   
+
+
   //get all books 
   //read a book
-  //Q&A with the ai
   //get marks of students with query to search for individual
   //student can see only his marks api
   //user can update their profile
@@ -45,5 +70,4 @@ export class UsersController {
   //student removal only valid to superadmin
   // forgot password api for everyone
   // students can see their assignments
-  //oAuth2.0 login
 }

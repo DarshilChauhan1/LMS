@@ -29,6 +29,8 @@ export class PermissionsController {
   updatePermission(@Param('id') id: number, @Body() updatePermissionDto: UpdatePermissionDto) {
     return this.permissionsService.removeRoles(id, updatePermissionDto);
   }
+
+  //deletes the permissions
   @Delete(':id')
   deletePermission(@Param('id') id: string) {
     return this.permissionsService.deletePermission(id);

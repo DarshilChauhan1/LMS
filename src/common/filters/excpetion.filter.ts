@@ -3,14 +3,7 @@ import {Request, Response} from 'express'
 
 @Catch()
 export class ExceptionHandling implements ExceptionFilter{
- /**
-+     * Method to catch the exception and send the appropriate error response.
-+     * 
-+     * @param exception The exception that was thrown.
-+     * @param host The NestJS ArgumentsHost object.
-+     */
    catch(exception: HttpException, host: ArgumentsHost): void {
-        console.log(exception)
        // Get the HTTP context from the ArgumentsHost
        const ctx = host.switchToHttp();
        // Get the request and response objects

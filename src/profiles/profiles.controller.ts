@@ -1,34 +1,38 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, UseFilters, Put } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { CustomGuard } from 'src/permissions/custom.guard';
+import { AuthGuardJWT } from 'src/auth/auth.guard';
+import { ExceptionHandling } from 'src/common/filters/excpetion.filter';
 
-@Controller('profiles')
+
+@UseGuards(AuthGuardJWT, CustomGuard)
+@UseFilters(ExceptionHandling)
+@Controller('api/v1')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 
-  @Post()
-  create(@Body() createProfileDto: CreateProfileDto) {
-    return this.profilesService.create(createProfileDto);
+  //get user profile
+  @Get('profiles/get')
+  getProfile(@Req() req : Request) {
+    return this.profilesService.getProfile({userId : req['user'].id});
+  }
+  //add profile of the user
+  @Post('profiles/add')
+  addProfile(@Body() createProfileDto: CreateProfileDto, @Req() req : Request) {
+    return this.profilesService.addProfile(createProfileDto, {userId : req['user'].id});
+  }
+  // update profile of the user
+  @Put('profiles/:id')
+  updateProfile(@Param('id') profileId: string, @Body() updateProfileDto: UpdateProfileDto, @Req() req : Request){
+    return this.profilesService.updateProfile(updateProfileDto, {profileId, userId : req['user'].id});
   }
 
-  @Get()
-  findAll() {
-    return this.profilesService.findAll();
+  //get all profiles only for admin
+  @Get('admin/profiles/getAll')
+  getAllProfiles(){
+    return this.profilesService.getAllProfiles();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.profilesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto) {
-    return this.profilesService.update(+id, updateProfileDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.profilesService.remove(+id);
-  }
 }

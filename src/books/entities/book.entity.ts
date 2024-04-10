@@ -13,7 +13,7 @@ export class Book {
     @Prop({required : true})
     author: string
 
-    @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'User'})
+    @Prop({type : [{type : mongoose.Schema.Types.ObjectId}], ref : 'User'})
     studentId : mongoose.Schema.Types.ObjectId[]
 
     @Prop({required : true})

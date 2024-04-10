@@ -23,13 +23,13 @@ export class User {
     @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'Role' })
     role_id : Role;
 
-    @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'Book'})
+    @Prop({type : [{type : mongoose.Schema.Types.ObjectId}], ref : 'Book'})
     books : mongoose.Schema.Types.ObjectId[]
 
     @Prop({type : 'boolean', default : false})
     isActive :  boolean
 
-    @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'Assignment'})
+    @Prop({type : [{type : mongoose.Schema.Types.ObjectId}], ref : 'Assignment'})
     assignments : mongoose.Schema.Types.ObjectId[]
 
     @Prop()

@@ -38,7 +38,6 @@ export class DataseedService {
 
     // will get unique routes
     const uniqueRoutes = this.addAllUniqueRoutes(newRoutFlatMap, existingRouteFlatMap);
-    console.log("uniqueRoutes", uniqueRoutes);
 
     // store permissions
     for (const uniqueRoute of uniqueRoutes) {

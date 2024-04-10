@@ -19,8 +19,8 @@ export class AuthService {
 
     async login(payload: LoginDto) {
         try {
-            const { password, username, platform_field } = payload
-            if (username && password && platform_field == PlatformEnum.APPLICATION) {
+            const { password, username } = payload
+            if (username && password) {
                 const user = await this.userModel.findOne({ username }).select('+password');
                 if (!user) throw new NotFoundException('User not found')
                 const isMatchPasswrord = await bcrypt.compare(password, user.password);
@@ -29,6 +29,7 @@ export class AuthService {
                 let access_token = await this.generateAccessToken(user._id.toString())
                 let refresh_token = await this.generateRefreshToken(user._id.toString())
                 user.refreshToken = refresh_token
+                user.isActive = true;
                 await user.save()
                 const responseData = {
                     access_token: access_token,
@@ -59,7 +60,7 @@ export class AuthService {
                 responseData['user'] = user
             }
             // if user doesnot exists we create one
-            const newUser = await this.userModel.create({ ...payload, platform_field: PlatformEnum.GOOGLE });
+            const newUser = await this.userModel.create({ ...payload, platform_field: PlatformEnum.GOOGLE, isActive : true });
             console.log(newUser)
             responseData['user'] = newUser
             const access_token = await this.generateAccessToken(newUser._id.toString());

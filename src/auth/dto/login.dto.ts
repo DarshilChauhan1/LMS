@@ -11,9 +11,4 @@ export class LoginDto{
     @IsNotEmpty()
     @IsString()
     password : string
-
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    platform_field : string
 }

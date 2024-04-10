@@ -1,4 +1,14 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateProfileDto } from './create-profile.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-export class UpdateProfileDto extends PartialType(CreateProfileDto) {}
+export class UpdateProfileDto {
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    firstName ?: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    lastName ?: string;
+}
