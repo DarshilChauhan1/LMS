@@ -40,6 +40,9 @@ export class User {
 
     @Prop({required : false, type : Date})
     forgotPasswordExpiry : Date
+
+    @Prop({required : false, default : false})
+    isDeleted : boolean
     
 }
 

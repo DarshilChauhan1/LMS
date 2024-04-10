@@ -14,9 +14,9 @@ import OpenAI from 'openai'
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly configService : ConfigService,
-    private readonly jwtService : JwtService,
-    @InjectModel('Role') private roleModel : Model<Role>,
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+    @InjectModel('Role') private roleModel: Model<Role>,
     @InjectModel('User') private userModel: Model<User>) { }
 
   async singup(userPayload: CreateUserDto) {
@@ -28,9 +28,9 @@ export class UsersService {
         if (verifyUser) throw new ConflictException('User Already Exists');
         //if the user not exists create
         let hashedPassword = await bcrypt.hash(password, 10);
-        const userRoleId = await this.roleModel.findOne({role : 'user'}).select('_id')
-        
-        const newUser = await this.userModel.create({ username, email, password: hashedPassword, role_id : userRoleId._id.toString()});
+        const userRoleId = await this.roleModel.findOne({ role: 'user' }).select('_id')
+
+        const newUser = await this.userModel.create({ username, email, password: hashedPassword, role_id: userRoleId._id.toString() });
         return new ResponseBody(201, 'User Created Successfully', undefined, true);
       } else {
         throw new BadRequestException('All credentials are required')
@@ -40,10 +40,10 @@ export class UsersService {
     }
   }
 
-  async logout(userId : string){
+  async logout(userId: string) {
     try {
       const verifyUser = await this.userModel.findById(userId).select('-password');
-      if(!verifyUser) throw new BadRequestException('User not found');
+      if (!verifyUser) throw new BadRequestException('User not found');
       verifyUser.refreshToken = '';
       await verifyUser.save();
       return new ResponseBody(200, 'Logout Successfully', undefined, true);
@@ -56,27 +56,27 @@ export class UsersService {
     try {
       const getAllUsers = await this.userModel.find();
       return new ResponseBody(200, 'Users Fetched Successfully', getAllUsers, true);
-      
+
     } catch (error) {
       throw error
     }
   }
 
 
-  async getRefreshToken(payload : {userId : string, refreshToken : string}){
+  async getRefreshToken(payload: { userId: string, refreshToken: string }) {
     try {
-      const {refreshToken, userId} = payload;
-      if(!refreshToken) throw new BadRequestException('Refresh Token is required');
+      const { refreshToken, userId } = payload;
+      if (!refreshToken) throw new BadRequestException('Refresh Token is required');
       const findRefreshToken = await this.userModel.findById(userId).select('refreshToken');
-      if(!findRefreshToken) throw new BadRequestException('User not found');
+      if (!findRefreshToken) throw new BadRequestException('User not found');
 
-      if(findRefreshToken.refreshToken !== refreshToken) throw new BadRequestException('Invalid Refresh Token');
+      if (findRefreshToken.refreshToken !== refreshToken) throw new BadRequestException('Invalid Refresh Token');
 
-      const verifyToken = await this.jwtService.verifyAsync(refreshToken, {secret : this.configService.get('REFRESH_TOKEN_SECRET')});
-      if(!verifyToken) throw new CustomError('Token Expired', 401, '/login')
+      const verifyToken = await this.jwtService.verifyAsync(refreshToken, { secret: this.configService.get('REFRESH_TOKEN_SECRET') });
+      if (!verifyToken) throw new CustomError('Token Expired', 401, '/login')
 
-      const accessToken = this.jwtService.sign({id : userId}, {secret : this.configService.get('ACCESS_TOKEN_SECRET'), expiresIn : '20m'});
-      return new ResponseBody(200, 'Token Refreshed Successfully', {accessToken : accessToken, refreshToken : refreshToken}, true);
+      const accessToken = this.jwtService.sign({ id: userId }, { secret: this.configService.get('ACCESS_TOKEN_SECRET'), expiresIn: '20m' });
+      return new ResponseBody(200, 'Token Refreshed Successfully', { accessToken: accessToken, refreshToken: refreshToken }, true);
 
     } catch (error) {
       throw error
@@ -84,12 +84,12 @@ export class UsersService {
   }
 
   // API subcription 
-  async askAI(question : string){
+  async askAI(question: string) {
     try {
-      const openai = new OpenAI({apiKey : this.configService.get('OPEN_AI_API_KEY'), maxRetries : 3})
+      const openai = new OpenAI({ apiKey: this.configService.get('OPEN_AI_API_KEY'), maxRetries: 3 })
       const resposnse = await openai.chat.completions.create({
-       messages : [{role : 'system', content : 'You are a helpful assistant.'}, {role : 'user', content : question}],
-        model : 'gpt-3.5-turbo',
+        messages: [{ role: 'system', content: 'You are a helpful assistant.' }, { role: 'user', content: question }],
+        model: 'gpt-3.5-turbo',
       })
 
       return new ResponseBody(200, 'AI Response', resposnse.choices[0].message.content, true);
@@ -99,14 +99,24 @@ export class UsersService {
     }
   }
 
-  async updateUser(id : string, payload : any){
+  async forgotPassword(email: string) {
     try {
-      const user = await this.userModel.findById(id);
-      if(!user) throw new BadRequestException('User not found');
-      await this.userModel.findByIdAndUpdate(id, payload);
-      return new ResponseBody(200, 'User Updated Successfully', undefined, true);
+      const user = await this.userModel.findOne({ email });
+      if (!user) throw new BadRequestException('User not found');
+
     } catch (error) {
       throw error
     }
   }
-}
+
+  async updateUser(id : string, payload : any){
+      try {
+        const user = await this.userModel.findById(id);
+        if (!user) throw new BadRequestException('User not found');
+        await this.userModel.findByIdAndUpdate(id, payload);
+        return new ResponseBody(200, 'User Updated Successfully', undefined, true);
+      } catch (error) {
+        throw error
+      }
+    }
+  }

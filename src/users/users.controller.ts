@@ -5,7 +5,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ExceptionHandling } from 'src/common/filters/excpetion.filter';
 import { AuthGuardJWT } from 'src/auth/auth.guard';
 import { Request } from 'express';
-import { CheckAbilities } from 'src/common/decorators/ability.decorator';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { CustomGuard } from 'src/permissions/custom.guard';
 
@@ -41,6 +40,12 @@ export class UsersController {
   @Post('refresh')
   getRefreshToken(@Body() paylaod : {refreshToken : string}, @Req() req : Request){
     return this.usersService.getRefreshToken({userId : req['user'].id, refreshToken : paylaod.refreshToken});
+  }
+
+  @UseGuards(CustomGuard)
+  @Post('forgot-password')
+  forgotPassword(@Body() payload : {email : string}){
+    return this.usersService.forgotPassword(payload.email);
   }
 
   @Put('users/:id')
