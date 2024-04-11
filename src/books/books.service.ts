@@ -142,7 +142,10 @@ export class BooksService {
     try {
       const { author, description, standard, title } = payload;
       const findBook = await this.bookModel.findOne({ title });
+      // check if book already exists
       if (findBook) throw new ConflictException('Book already exists');
+
+      //file is required
       if (!file) throw new ConflictException('Please upload a file');
       const cloudinaryUpload = await this.cloudinaryService.uploadImage(file.path);
       const newBook = await this.bookModel.create({
@@ -178,6 +181,9 @@ export class BooksService {
         }
       }
       const updatedBook = await this.bookModel.findByIdAndUpdate(bookId, { $set: updateObj }, { new: true });
+
+      // to remove file from local storage
+      fs.unlinkSync(file.path);
       return new ResponseBody(200, 'Book updated successfully', updatedBook, true);
     } catch (error) {
       throw error
