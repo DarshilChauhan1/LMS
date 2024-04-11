@@ -4,6 +4,7 @@ import {Request, Response} from 'express'
 @Catch()
 export class ExceptionHandling implements ExceptionFilter{
    catch(exception: HttpException, host: ArgumentsHost): void {
+        console.log(exception);
        // Get the HTTP context from the ArgumentsHost
        const ctx = host.switchToHttp();
        // Get the request and response objects

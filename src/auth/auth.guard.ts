@@ -15,7 +15,7 @@ export class AuthGuardJWT implements CanActivate {
         const Token = this.fetchToken(request);
         
         //Custom error to redirect the user to login
-        if (!Token) throw new CustomError('Token not found', 409, '/login');
+        if (!Token || Token == undefined) throw new CustomError('Token not found', 409, '/login');
         try {
             const verifyUser =  await this.jwtService.verifyAsync(Token, { secret: this.configService.get('ACCESS_TOKEN_SECRET') });
             request['user'] = verifyUser;
@@ -31,7 +31,7 @@ export class AuthGuardJWT implements CanActivate {
 
     private fetchToken(request: Request) {
         //fetching the token from authorization header
-        const [type, token] = request.headers['authorization'].split(" ")
+        const [type, token] = request.headers['authorization'] ? request.headers['authorization'].split(' ') : [undefined, undefined];
         return type == 'Bearer' ? token : undefined
     }
 }

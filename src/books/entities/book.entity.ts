@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
 
 export type BookDocument = HydratedDocument<Book>
-@Schema()
+@Schema({timestamps : true})
 export class Book {
     @Prop({required : true, unique : true})
     title: string;
@@ -13,8 +13,8 @@ export class Book {
     @Prop({required : true})
     author: string
 
-    @Prop({type : [{type : mongoose.Schema.Types.ObjectId}], ref : 'User'})
-    studentId : mongoose.Schema.Types.ObjectId[]
+    //@Prop({type : [{type : mongoose.Schema.Types.ObjectId}], ref : 'User'})
+    //studentId : mongoose.Schema.Types.ObjectId[]
 
     @Prop({required : true})
     standard : string
