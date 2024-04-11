@@ -12,9 +12,10 @@ import { RolesModule } from './roles/roles.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { DataseedModule } from './dataseed/dataseed.module';
 import { AppService } from './app.service';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
-  imports: [AuthModule, ConfigModule.forRoot(), MongooseModule.forRootAsync(MongooseAsyncConfig), UsersModule, BooksModule, AssignmentsModule, ProfilesModule, RolesModule, PermissionsModule, DataseedModule],
+  imports: [AuthModule, ConfigModule.forRoot(), MongooseModule.forRootAsync(MongooseAsyncConfig), UsersModule, BooksModule, AssignmentsModule, ProfilesModule, RolesModule, PermissionsModule, DataseedModule, CloudinaryModule],
   controllers: [AppController],
   providers: [AppService],
 })

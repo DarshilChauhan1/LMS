@@ -18,6 +18,15 @@ export class Book {
 
     @Prop({required : true})
     standard : string
+
+    @Prop({required : true, type : 'boolean', default : false})
+    isDeleted : boolean
+    
+    @Prop({required : true, type : Object})
+    pdf : {
+        public_id : string,
+        url : string
+    }
 }
 
 export const BookSchema = SchemaFactory.createForClass(Book);
