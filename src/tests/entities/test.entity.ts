@@ -1,11 +1,13 @@
-import { Prop, Schema } from "@nestjs/mongoose";
-import mongoose from "mongoose";
-import { Book } from "src/books/entities/book.entity";
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { HydratedDocument } from "mongoose";
 import { TestEnum } from "../enums/test.enum";
 
-@Schema()
+
+export type TestDocument = HydratedDocument<Test>
+
+@Schema({timestamps : true})
 export class Test {
-    @Prop({type : 'enum', enum : TestEnum, required : true})
+    @Prop({enum : TestEnum, required : true})
     name : string;
 
     @Prop({required : true})
@@ -17,7 +19,7 @@ export class Test {
     @Prop()
     answers : string[]
 
-    @Prop({required : true})
+    @Prop({required : false})
     test_total_marks : number
 
     @Prop()
@@ -26,9 +28,11 @@ export class Test {
     @Prop({type : Date, required : false})
     time_taken : Date
 
-    @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'Book', required : true})
-    book_id : Book
+    @Prop({type : [{type : mongoose.Schema.Types.ObjectId}], ref : 'Book', required : true})
+    book_id : mongoose.Schema.Types.ObjectId[]
 
     @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'User', required : true})
     student_id : mongoose.Schema.Types.ObjectId
 }
+
+export const TestSchema = SchemaFactory.createForClass(Test);

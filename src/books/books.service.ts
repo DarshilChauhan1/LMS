@@ -113,17 +113,17 @@ export class BooksService {
         }
       })
 
-      pipeline.push( {
+      pipeline.push({
         $skip: skipPages
       },
-      {
-        $limit: parseInt(limit) ? parseInt(limit) : 10
-      },
-      {
-        $sort: {
-          createdAt: order_by ? (order_by == 'asc' ? 1 : -1) : 1
-        }
-      })
+        {
+          $limit: parseInt(limit) ? parseInt(limit) : 10
+        },
+        {
+          $sort: {
+            createdAt: order_by ? (order_by == 'asc' ? 1 : -1) : 1
+          }
+        })
       // get total count of documents
       const getAllCounts = await this.bookModel.aggregate([{ $count: 'total' }])
       // for search filter and order by functionality in the books
@@ -133,7 +133,7 @@ export class BooksService {
         totalDocuments: getAllCounts.length > 0 ? getAllCounts[0].total : 0,
         data: getAllUserBooks
       }
-      return new ResponseBody( 200, 'All books received', responseData, true)
+      return new ResponseBody(200, 'All books received', responseData, true)
     } catch (error) {
       throw error
     }
@@ -195,6 +195,61 @@ export class BooksService {
       const deleteBook = await this.bookModel.findByIdAndUpdate(bookId, { $set: { isDeleted: true } }, { new: true });
       if (!deleteBook) throw new ConflictException('Book not found');
       return new ResponseBody(200, 'Book deleted successfully', deleteBook, true);
+    } catch (error) {
+      throw error
+    }
+  }
+
+  /* user dashboard books api's*/
+
+  async selectBook(books: string[], userId: string) {
+    try {
+      // frontend will send the arrays of book id's
+      let user = await this.profileModel.findOne({ student_id: userId }).select('standard');
+      if(!user) throw new BadRequestException('Create a profile first to select books')
+      let bookIdsFound = [];
+
+      // this books will be selected by the user for reading and we will be testing them on the basis of selected books
+      for (const book of books) {
+        const books = await this.bookModel.findOne({ _id: book, standard: user.standard })
+        if (books) bookIdsFound.push(book)
+        continue;
+      }
+      if (bookIdsFound.length === 0) throw new BadRequestException('No book found for the user standard');
+      let updateUser = await this.userModel.findByIdAndUpdate(userId, { $set: { books: bookIdsFound } }, { new: true }).populate('books', 'title author standard pdf').select('-refreshToken -role_id');
+      return new ResponseBody(200, 'Books selected successfully', updateUser, true);
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async getSelectedBooks(userId: string) {
+    try {
+      const getAllSelected = await this.userModel.findById(userId).populate('books', 'title author standard pdf').select('-refreshToken -role_id')
+      if(!getAllSelected) throw new BadRequestException('No books found of user');
+      return new ResponseBody(200, 'All selected books', getAllSelected, true);
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async deselectBook(books: string[], userId: string) {
+    try {
+      let user = await this.userModel.findById(userId).populate('books', 'title author standard pdf').select('-refreshToken');
+      console.log(user)
+      // if user hits this api without selecting any books or creating profile
+      if(user.books.length === 0) throw new BadRequestException('No books found of user')
+      let filteredBookIds = [];
+      for (const book of books) {
+        const bookExists = await this.bookModel.findOne({ _id: book });
+        if (!bookExists) {
+          filteredBookIds.push(book);
+        }
+        continue;
+      }
+      // if no book found to deselect we return user selcted books as it is
+      const updatedUser = await this.userModel.findByIdAndUpdate(userId, { $pull: { books: { $in: filteredBookIds } } }, { new: true }).populate('books', 'title author standard pdf').select('-refreshToken -role_id');
+      return new ResponseBody(201, 'Books deselected successfully', updatedUser, true);
     } catch (error) {
       throw error
     }

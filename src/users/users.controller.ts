@@ -61,16 +61,10 @@ export class UsersController {
    @Post('users/ask-ai')
    askAI(@Body() payload : {question : string}){
      return this.usersService.askAI(payload.question);
-   }
-
-   
-
-
-  //get all books 
+   } 
   //read a book
   //get marks of students with query to search for individual
   //student can see only his marks api
-  //user can update their profile
   //modify marks
   //student removal only valid to superadmin
   // forgot password api for everyone

@@ -55,5 +55,25 @@ export class BooksController {
   async deleteBook(@Param('id') bookId: string) {
     return await this.booksService.deleteBook(bookId);
   }
+
+
+    /* user dashboard books api's*/
   
+  //select books to  start your reading
+  @Post('books/select')
+  async selectBook(@Body() payload : {books : string[]}, @Req() req : Request){
+    return await this.booksService.selectBook(payload.books, req['user'].id);
+  }
+
+  // get all selected user books or get reading list
+  @Get('books/selected')
+  async getSelectedBooks(@Req() req : Request){
+    return await this.booksService.getSelectedBooks(req['user'].id);
+  }
+
+  //deselect books from the selected books  or to remove books from the reading list
+  @Post('books/deselect')
+  async deselectBook(@Body() payload : {books : string[]}, @Req() req : Request){
+    return await this.booksService.deselectBook(payload.books, req['user'].id);
+  }
 }

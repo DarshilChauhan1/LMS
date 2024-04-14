@@ -1,10 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Role } from 'src/roles/entities/role.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { RoleEnum } from 'src/roles/enum/role.enum';
 import { Permission } from 'src/permissions/entities/permission.entity';
 import { AppService } from 'src/app.service';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class DataseedService {

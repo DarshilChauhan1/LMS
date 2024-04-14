@@ -32,6 +32,9 @@ export class User {
     @Prop({type : [{type : mongoose.Schema.Types.ObjectId}], ref : 'Assignment'})
     assignments : mongoose.Schema.Types.ObjectId[]
 
+    @Prop({type : [{type : mongoose.Schema.Types.ObjectId}], ref : 'Test'})
+    tests : mongoose.Schema.Types.ObjectId[]
+
     @Prop()
     refreshToken : string;
 

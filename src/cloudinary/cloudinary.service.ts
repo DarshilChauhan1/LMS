@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse} from 'cloudinary';
+import * as axios from 'axios';
 
 @Injectable()
 export class CloudinaryService {
@@ -21,6 +22,15 @@ export class CloudinaryService {
                 resolve(result);
             })
         })
+    }
+
+    async downloadPdf(public_id: string) {
+        try {
+          const result = await cloudinary.api.resource(public_id, { resource_type: 'raw' });
+          console.log(result);
+        } catch (error) {
+            console.log(error)
+        }
     }
 
 }

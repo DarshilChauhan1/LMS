@@ -83,13 +83,13 @@ export class UsersService {
     }
   }
 
-  // API subcription 
+  // API to get the AI response 
   async askAI(question: string) {
     try {
-      const openai = new OpenAI({ apiKey: this.configService.get('OPEN_AI_API_KEY'), maxRetries: 3 })
+      const openai = new OpenAI({ apiKey: this.configService.get('OPENAI_API_KEY'), maxRetries: 3 })
       const resposnse = await openai.chat.completions.create({
         messages: [{ role: 'system', content: 'You are a helpful assistant.' }, { role: 'user', content: question }],
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4',
       })
 
       return new ResponseBody(200, 'AI Response', resposnse.choices[0].message.content, true);
