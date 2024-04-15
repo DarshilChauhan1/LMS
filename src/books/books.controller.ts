@@ -8,6 +8,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { MulterCustomOptions } from 'src/common/config/multer.config';
 import { SearchItemsDto } from './dto/searchItems.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { get } from 'http';
+import { getFileValidator } from 'src/tests/file.validator';
 
 
 @UseGuards(AuthGuardJWT, CustomGuard)
@@ -31,12 +33,7 @@ export class BooksController {
   // add a new book only valid for admin
   @UseInterceptors(FileInterceptor('file', MulterCustomOptions))
   @Post('admin/books/add')
-  async addBook(@Body() payload: CreateBookDto, @Req() req : Request, @UploadedFile(
-    new ParseFilePipeBuilder()
-    .addFileTypeValidator({fileType : 'pdf'})
-    .addMaxSizeValidator({maxSize : 1024 * 1024 * 300 /*300 mb*/ } )
-    .build({errorHttpStatusCode : HttpStatus.UNPROCESSABLE_ENTITY})
-  ) file : Express.Multer.File) {
+  async addBook(@Body() payload: CreateBookDto, @Req() req : Request, @UploadedFile(getFileValidator()) file: Express.Multer.File){
     return await this.booksService.addBook(payload, file);
   }
   // update book only valid for admin
@@ -44,7 +41,7 @@ export class BooksController {
   @Put('admin/books/:id')
   async updateBook(@Param('id') bookId: string, @Body() payload: UpdateBookDto, @UploadedFile(
     new ParseFilePipeBuilder()
-    .addFileTypeValidator({fileType : 'pdf'})
+    .addFileTypeValidator({fileType : 'pdf jpg jpeg png'})
     .addMaxSizeValidator({maxSize : 1024 * 1024 * 300 /*300 mb*/})
     .build({errorHttpStatusCode : HttpStatus.UNPROCESSABLE_ENTITY})
   ) file ?: Express.Multer.File) {

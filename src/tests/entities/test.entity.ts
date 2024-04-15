@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { HydratedDocument } from "mongoose";
+import mongoose, { HydratedDocument, ObjectId } from "mongoose";
 import { TestEnum } from "../enums/test.enum";
 
 
@@ -33,6 +33,9 @@ export class Test {
 
     @Prop({type : mongoose.Schema.Types.ObjectId, ref : 'User', required : true})
     student_id : mongoose.Schema.Types.ObjectId
+
+    @Prop({required : false, type : 'boolean', default : false})
+    submitted : boolean
 }
 
 export const TestSchema = SchemaFactory.createForClass(Test);

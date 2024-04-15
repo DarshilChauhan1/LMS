@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Book } from './entities/book.entity';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { ResponseBody } from 'src/helpers/helper';
+import { PipelinePagination, ResponseBody } from 'src/helpers/helper';
 import { SearchItemsDto } from './dto/searchItems.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Profile } from 'src/profiles/entities/profile.entity';
@@ -46,19 +46,9 @@ export class BooksService {
 
       if (filter) pipeline.push({ $match: { $or: [{ author: filter }, { title: filter }, { standard: filter }] } })
 
-      // for pagination after all the fields are checked
-      pipeline.push(
-        {
-          $skip: skipPages
-        },
-        {
-          $limit: parseInt(limit) ? parseInt(limit) : 10
-        },
-        {
-          $sort: {
-            createdAt: order_by ? (order_by == 'asc' ? 1 : -1) : 1
-          }
-        })
+      // apply pagination
+      const pagination = PipelinePagination(skipPages, limit, order_by)
+      pipeline.push(...pagination)
 
       // get total count of documents
       const getAllCounts = await this.bookModel.aggregate([{ $count: 'total' }])
@@ -79,6 +69,7 @@ export class BooksService {
     try {
       const getUserStandard = await this.profileModel.findOne({ student_id: userId });
       if (!getUserStandard) throw new ConflictException('User not found');
+      console.log(getUserStandard)
       const { search, order_by, filter, page, limit } = query
 
       const skipPages = page ? (parseInt(page) - 1) * parseInt(limit) ? parseInt(limit) : 10 : 0
@@ -113,20 +104,12 @@ export class BooksService {
         }
       })
 
-      pipeline.push({
-        $skip: skipPages
-      },
-        {
-          $limit: parseInt(limit) ? parseInt(limit) : 10
-        },
-        {
-          $sort: {
-            createdAt: order_by ? (order_by == 'asc' ? 1 : -1) : 1
-          }
-        })
+      // pagination
+      const pagination = PipelinePagination(skipPages, limit, order_by)
+      pipeline.push(...pagination)
       // get total count of documents
-      const getAllCounts = await this.bookModel.aggregate([{ $count: 'total' }])
-      // for search filter and order by functionality in the books
+      const getAllCounts = await this.bookModel.aggregate([{$match: { standard: getUserStandard.standard }},{ $count: 'total'} ])
+
       const getAllUserBooks = await this.bookModel.aggregate(pipeline);
 
       let responseData = {

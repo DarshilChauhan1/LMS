@@ -6,7 +6,7 @@ export type ProfileDocument = HydratedDocument<Profile>
 @Schema({timestamps : true})
 export class Profile {
     @Prop({required : true})
-    firstname : string;
+    firstname : string; 
 
     @Prop()
     lastname : string;
