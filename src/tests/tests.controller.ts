@@ -16,10 +16,10 @@ export class TestsController {
   constructor(private readonly testsService: TestsService) {}
 
   // automated test creation api
-  @Post('admin/tests/create-ai')
-  createAiTest(@Req() req : Request){
-    return this.testsService.createAiTest(req['user'].id);
-  }
+  // @Post('admin/tests/create-ai')
+  // createAiTest(@Req() req : Request){
+  //   return this.testsService.createAiTest(req['user'].id);
+  // }
 
   //submit test api
   @Put('tests/submit/:testId')

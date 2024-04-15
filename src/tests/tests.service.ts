@@ -23,6 +23,10 @@ export class TestsService {
     @InjectModel('User') private readonly userModel: Model<User>,
     @InjectModel('Test') private readonly testModel: Model<Test>) { }
 
+  async testCron(){
+    console.log('Cron Job Running')
+  }
+
   async createAiTest(userId: string) {
     try {
       const findUserBooks = await this.userModel.findById(userId).populate('books').select('-refreshToken -role_id -password');
