@@ -8,8 +8,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { MulterCustomOptions } from 'src/common/config/multer.config';
 import { SearchItemsDto } from './dto/searchItems.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { get } from 'http';
-import { getFileValidator } from 'src/tests/file.validator';
+import { getFileValidator } from 'src/books/file.validator';
 
 
 @UseGuards(AuthGuardJWT, CustomGuard)
