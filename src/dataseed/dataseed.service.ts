@@ -5,10 +5,13 @@ import { RoleEnum } from 'src/roles/enum/role.enum';
 import { Permission } from 'src/permissions/entities/permission.entity';
 import { AppService } from 'src/app.service';
 import { Injectable } from '@nestjs/common';
+import { Router } from 'express'
+import { RoutesService } from './dataseed.interceptor';
 
 @Injectable()
 export class DataseedService {
   constructor(
+    private readonly routeService : RoutesService,
     private readonly appSevice: AppService,
     @InjectModel('Permission') private permissionModel: Model<Permission>,
     @InjectModel('Role') private roleModel: Model<Role>) { }
@@ -27,7 +30,8 @@ export class DataseedService {
   async dataSeedPermission() {
     const findUserRole = await this.roleModel.findOne({ role: RoleEnum.USER });
     const adminRole = await this.roleModel.findOne({ role: RoleEnum.SCHOOL_ADMIN });
-    const routes = this.appSevice.getAllRoutes()
+    const routes = this.routeService.getRoutes()
+    console.log(routes);
 
     // flat map to get all the routes in a single array
     const newRoutFlatMap = routes.flatMap((route) => route['route']);

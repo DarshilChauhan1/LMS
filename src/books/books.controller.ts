@@ -9,6 +9,7 @@ import { MulterCustomOptions } from 'src/common/config/multer.config';
 import { SearchItemsDto } from './dto/searchItems.dto';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { getFileValidator } from 'src/books/file.validator';
+import { GuardName } from 'src/common/decorators/guardName.decorator';
 
 
 @UseGuards(AuthGuardJWT, CustomGuard)

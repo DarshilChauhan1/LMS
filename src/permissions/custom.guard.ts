@@ -1,4 +1,3 @@
-import { ForbiddenError } from "@casl/ability";
 import { CanActivate, ExecutionContext, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";

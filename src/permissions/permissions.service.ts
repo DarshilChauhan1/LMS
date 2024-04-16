@@ -5,76 +5,112 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, mongo, ObjectId } from 'mongoose';
 import { Permission } from './entities/permission.entity';
 import { ResponseBody } from 'src/helpers/helper';
+import { DiscoveryService, MetadataScanner } from '@nestjs/core';
 
 @Injectable()
 export class PermissionsService {
-    constructor(@InjectModel('Permission') private permissionModel: Model<Permission>) { }
+    constructor(
+        private readonly discoveryService: DiscoveryService,
+        private readonly metadataScanner: MetadataScanner,
+        @InjectModel('Permission') private permissionModel: Model<Permission>) { }
+
+    // function to get all routes with permissions
+    getRoutes() {
+        const routes = [];
+
+        const controllers = this.discoveryService.getControllers();
+        for (const wrapper of controllers) {
+            const { instance } = wrapper;
+            const prototype = Object.getPrototypeOf(instance);
+
+            // will get all the keys ---> controllers functions
+            const keys = Object.getOwnPropertyNames(prototype);
+            if (instance && keys) {
+                for (const key of keys) {
+                    const routePath: string = Reflect.getMetadata('path', instance[key]);
+                    const routeMethod: number = Reflect.getMetadata('method', instance[key]);
+                    const guardName: string = Reflect.getMetadata('__guards__', instance[key]);
+                    if (routePath && routeMethod >= 0) {
+                        routes.push({
+                            path: routePath,
+                            method: routeMethod,
+                            protected: guardName
+                        });
+                    }
+                }
+
+            } else continue;
+
+        }
+        return routes;
+    }
+
 
     async getAllPermissions() {
-        try {
-            const permissions = await this.permissionModel.find().populate('role_id');
-            return new ResponseBody(200, 'All Permissions', permissions, true);
-        } catch (error) {
-            throw error;
-        }
+    try {
+        const permissions = await this.permissionModel.find().populate('role_id');
+        return new ResponseBody(200, 'All Permissions', permissions, true);
+    } catch (error) {
+        throw error;
     }
+}
 
     async addPermissionToRoute(payload: CreatePermissionDto) {
-        try {
-            const { role_id, route, method } = payload;
-            if (role_id.length > 0 && route && method) {
-                const findPermission = await this.permissionModel.findOne({ route, method }).select('role_id');
-                console.log(findPermission);
-                if (!findPermission) throw new NotFoundException('No such Permission found');
-
-                let updatedRoles = this.addRolesInPermission(findPermission.role_id, role_id);
-                findPermission.role_id = updatedRoles;
-                await findPermission.save();
-
-                return new ResponseBody(200, 'Permission added successfully', undefined, true);
-            } else {
-                throw new BadRequestException('All fields are required');
-            }
-        } catch (error) {
-            throw error
-        }
-    }
-
-    async removeRoles(id: number, payload: UpdatePermissionDto) {
-        try {
-            const { role_id } = payload;
-            const findPermission = await this.permissionModel.findById(id).select('role_id');
+    try {
+        const { role_id, route, method } = payload;
+        if (role_id.length > 0 && route && method) {
+            const findPermission = await this.permissionModel.findOne({ route, method }).select('role_id');
+            console.log(findPermission);
             if (!findPermission) throw new NotFoundException('No such Permission found');
-            let updatedRoles = findPermission.role_id.filter((role) => !role_id.includes(role.toString()));
+
+            let updatedRoles = this.addRolesInPermission(findPermission.role_id, role_id);
             findPermission.role_id = updatedRoles;
             await findPermission.save();
-            return new ResponseBody(200, 'Permission updated successfully', undefined, true);
 
-        } catch (error) {
-            throw error;
+            return new ResponseBody(200, 'Permission added successfully', undefined, true);
+        } else {
+            throw new BadRequestException('All fields are required');
         }
+    } catch (error) {
+        throw error
     }
+}
+
+    async removeRoles(id: number, payload: UpdatePermissionDto) {
+    try {
+        const { role_id } = payload;
+        const findPermission = await this.permissionModel.findById(id).select('role_id');
+        if (!findPermission) throw new NotFoundException('No such Permission found');
+        let updatedRoles = findPermission.role_id.filter((role) => !role_id.includes(role.toString()));
+        findPermission.role_id = updatedRoles;
+        await findPermission.save();
+        return new ResponseBody(200, 'Permission updated successfully', undefined, true);
+
+    } catch (error) {
+        throw error;
+    }
+}
 
     async deletePermission(id: string) {
-        try {
-            const permission = await this.permissionModel.findByIdAndDelete(id);
-            if (!permission) throw new NotFoundException('No such Permission found');
-            return new ResponseBody(200, 'Permission deleted successfully', undefined, true);
-        } catch (error) {
-            throw error;
-        }
+    try {
+        const permission = await this.permissionModel.findByIdAndDelete(id);
+        if (!permission) throw new NotFoundException('No such Permission found');
+        return new ResponseBody(200, 'Permission deleted successfully', undefined, true);
+    } catch (error) {
+        throw error;
     }
+}
 
 
 
     //Method to attach all unique roles to a permission
     private addRolesInPermission(currentRoles: ObjectId[], role_id: any[]) {
-        let updatedRole = currentRoles
-        for (const role of role_id) {
-           if(currentRoles.find((currentRole) => currentRole.toString() === role) == undefined){
-                updatedRole.push(role);
-           }
+    let updatedRole = currentRoles
+    for (const role of role_id) {
+        if (currentRoles.find((currentRole) => currentRole.toString() === role) == undefined) {
+            updatedRole.push(role);
         }
-        return updatedRole;
     }
+    return updatedRole;
+}
 }

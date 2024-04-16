@@ -1,13 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, UseFilters, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, UseFilters, Put, SetMetadata } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { CustomGuard } from 'src/permissions/custom.guard';
 import { AuthGuardJWT } from 'src/auth/auth.guard';
 import { ExceptionHandling } from 'src/common/filters/excpetion.filter';
+import { Guards } from 'src/common/enums/guards.enum';
+import { ProtectedRoute } from 'src/common/decorators/UseCustomGuards.decorator';
 
 
 @UseGuards(AuthGuardJWT, CustomGuard)
+@ProtectedRoute()
 @UseFilters(ExceptionHandling)
 @Controller('api/v1')
 export class ProfilesController {
@@ -19,6 +22,7 @@ export class ProfilesController {
     return this.profilesService.getProfile({userId : req['user'].id});
   }
   //add profile of the user
+  @UseGuards(AuthGuardJWT)
   @Post('profiles/add')
   addProfile(@Body() createProfileDto: CreateProfileDto, @Req() req : Request) {
     return this.profilesService.addProfile(createProfileDto, {userId : req['user'].id});

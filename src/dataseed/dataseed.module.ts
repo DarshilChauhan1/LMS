@@ -8,10 +8,15 @@ import { RolesModule } from 'src/roles/roles.module';
 import { PermissionSchema } from 'src/permissions/entities/permission.entity';
 import { AppService } from 'src/app.service';
 import { AppModule } from 'src/app.module';
+import { DiscoveryModule } from '@nestjs/core';
+import { Router } from 'express';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+import { RoutesService } from './dataseed.interceptor';
 
 @Module({
-  imports : [MongooseModule.forFeature([{name : Role.name, schema : RoleSchema}, {name : 'Permission', schema : PermissionSchema}]),RolesModule, forwardRef(() => AppModule)],
+  imports : [MongooseModule.forFeature([{name : Role.name, schema : RoleSchema}, {name : 'Permission', schema : PermissionSchema}]),RolesModule, forwardRef(() => AppModule), JwtModule, ConfigModule.forRoot(), DiscoveryModule],
   controllers: [DataseedController],
-  providers: [DataseedService, AppService],
+  providers: [DataseedService, AppService, RoutesService],
 })
 export class DataseedModule {}
