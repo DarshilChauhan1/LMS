@@ -22,7 +22,6 @@ export class ProfilesController {
     return this.profilesService.getProfile({userId : req['user'].id});
   }
   //add profile of the user
-  @UseGuards(AuthGuardJWT)
   @Post('profiles/add')
   addProfile(@Body() createProfileDto: CreateProfileDto, @Req() req : Request) {
     return this.profilesService.addProfile(createProfileDto, {userId : req['user'].id});

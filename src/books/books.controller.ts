@@ -12,9 +12,10 @@ import { getFileValidator } from 'src/books/file.validator';
 import { GuardName } from 'src/common/decorators/guardName.decorator';
 
 
+
+@Controller('api/v1')
 @UseGuards(AuthGuardJWT, CustomGuard)
 @ApiBearerAuth()
-@Controller('api/v1')
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
