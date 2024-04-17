@@ -3,10 +3,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './entities/user.entity';
-import { ResponseBody } from 'src/helpers/helper';
+import { ResponseBody } from '../helpers/helper';
 import * as bcrypt from 'bcrypt';
-import { Role } from 'src/roles/entities/role.entity';
-import { CustomError } from 'src/helpers/Error/customError';
+import { Role } from '../roles/entities/role.entity';
+import { CustomError } from '../helpers/Error/customError';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai'
@@ -42,7 +42,7 @@ export class UsersService {
 
   async logout(userId: string) {
     try {
-      const verifyUser = await this.userModel.findById(userId).select('-password');
+      const verifyUser = await this.userModel.findById(userId).select('-password -role_id');
       if (!verifyUser) throw new BadRequestException('User not found');
       verifyUser.refreshToken = '';
       await verifyUser.save();

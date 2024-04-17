@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { getModelToken } from '@nestjs/mongoose';
-import { User } from 'src/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { ResponseBody } from '../helpers/helper'
+
 
 
 describe('AuthService', () => {
@@ -51,7 +51,7 @@ describe('AuthService', () => {
 
     const response = await authService.login(loginDto);
 
-    expect(response).toEqual(new ResponseBody(200, 'Login successfully', {
+    expect(response).toEqual({
       message: "Login successfully",
       statusCode: 200,
       success: true,
@@ -64,7 +64,7 @@ describe('AuthService', () => {
           email: 'Junior.Stiedemann76@yahoo.com'
         }
       }
-    }, true ))
+    })
     expect(mockUserRepository.findOne).toHaveBeenCalledWith({ username: 'Crawford_Ondricka' })
   });
 });

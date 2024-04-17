@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, mongo, ObjectId } from 'mongoose';
+import { Model } from 'mongoose';
 import { Permission } from './entities/permission.entity';
 import { ResponseBody } from 'src/helpers/helper';
 import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
@@ -18,9 +18,9 @@ export class PermissionsService {
         private readonly metadataScanner: MetadataScanner,
         @InjectModel('Role') private roleModel: Model<Role>,
         @InjectModel('Permission') private permissionModel: Model<Permission>) { }
-    
 
-    async addPermissions(){
+
+    async addPermissions() {
         try {
             const getExistingPermissions = await this.permissionModel.find().select('route method ');
             const routes = this.getRoutes();
@@ -28,19 +28,19 @@ export class PermissionsService {
             const getAdminRole = await this.roleModel.findOne({ role: RoleEnum.SCHOOL_ADMIN });
             // store permissions into DB
             for (const route of uniqueRoutes) {
-                    const permissionObj = {
-                        route: `api/v1/${route['path']}`,
-                        method: RequestMethod[route['method']],
-                        role_id: getAdminRole._id,
-                        protected : route['protected'] == 'AuthGuardJWT' ? true : false
-                    }
-                    await this.permissionModel.create(permissionObj);
+                const permissionObj = {
+                    route: `api/v1/${route['path']}`,
+                    method: RequestMethod[route['method']],
+                    role_id: getAdminRole._id,
+                    protected: route['protected'] == 'AuthGuardJWT' ? true : false
+                }
+                await this.permissionModel.create(permissionObj);
             }
             return new ResponseBody(200, 'Permissions added successfully', undefined, true);
         } catch (error) {
             throw error
         }
-    } 
+    }
 
     async getAllPermissions() {
         try {
@@ -77,13 +77,16 @@ export class PermissionsService {
             const { role_id } = payload;
             const findPermission = await this.permissionModel.findById(id);
             if (!findPermission) throw new NotFoundException('No such Permission found');
-            let updatedRoles = findPermission.role_id.filter((role) => !role_id.includes(role.toString()));
-            
-            findPermission.protected == payload.protected ? findPermission.protected : findPermission.protected = payload.protected; 
-            
-            findPermission.role_id = updatedRoles;
-            await this.permissionModel.findByIdAndUpdate(id,  { new: true })
-            return new ResponseBody(200, 'Permission updated successfully', undefined, true);
+            if (role_id && role_id.length > 0) {
+                let updatedRoles = findPermission.role_id.filter((role) => !role_id.includes(role.toString()));
+                findPermission.role_id = updatedRoles;
+            }
+            // check if there is protected in the payload
+            payload.protected ? (findPermission.protected == payload.protected ? findPermission.protected : findPermission.protected = payload.protected) : findPermission.protected;
+
+
+            await findPermission.save();
+            return new ResponseBody(200, 'Permission updated successfully', findPermission, true);
 
         } catch (error) {
             throw error;
@@ -113,10 +116,10 @@ export class PermissionsService {
         return updatedRole;
     }
 
-    private addUniquePermissions(currentPermissions : any[], newPermissions : any[]){
+    private addUniquePermissions(currentPermissions: any[], newPermissions: any[]) {
         let updatedPermissions = [];
-        for(const permission of newPermissions){
-            if(currentPermissions.find((currentPermission) => currentPermission['route'] === `api/v1/${permission['path']}` && currentPermission['method'] === RequestMethod[permission['method']] )) continue;
+        for (const permission of newPermissions) {
+            if (currentPermissions.find((currentPermission) => currentPermission['route'] === `api/v1/${permission['path']}` && currentPermission['method'] === RequestMethod[permission['method']])) continue;
             updatedPermissions.push(permission);
         }
         return updatedPermissions
