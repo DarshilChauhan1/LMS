@@ -11,7 +11,7 @@ import { UserSchema } from 'src/users/entities/user.entity';
 import { DiscoveryModule } from '@nestjs/core';
 
 @Module({
-  imports : [MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }, {name : Permission.name, schema : PermissionSchema}, {name : 'User', schema : UserSchema}]), ConfigModule.forRoot(), JwtModule, DiscoveryModule],
+  imports : [MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }, {name : Permission.name, schema : PermissionSchema}, {name : 'User', schema : UserSchema}, {name : 'Role', schema : RoleSchema}]), ConfigModule.forRoot(), JwtModule, DiscoveryModule],
   controllers: [PermissionsController],
   providers: [PermissionsService],
   exports : [PermissionsModule]

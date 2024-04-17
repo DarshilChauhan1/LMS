@@ -19,15 +19,15 @@ export class PermissionsController {
     return this.permissionsService.getAllPermissions();
   }
 
-  //TODO CHANGE POST REQUEST INTO PUT REQUEST WITH (add/:id)
+  //add all  permissions to the routes
   @Post('add')
-  addPermissionToRoute(@Body() payload : CreatePermissionDto){
-    return this.permissionsService.addPermissionToRoute(payload);
+  addPermissionToRoute(){
+    return this.permissionsService.addPermissions();
   }
   // remove roles particular permissions
-  @Put('remove/:id')
+  @Put(':id')
   updatePermission(@Param('id') id: number, @Body() updatePermissionDto: UpdatePermissionDto) {
-    return this.permissionsService.removeRoles(id, updatePermissionDto);
+    return this.permissionsService.updatePermission(id, updatePermissionDto);
   }
 
   //deletes the permissions
