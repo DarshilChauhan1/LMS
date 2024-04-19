@@ -9,6 +9,7 @@ import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { Role } from 'src/roles/entities/role.entity';
 import { RoleEnum } from 'src/roles/enum/role.enum';
 import { RequestMethod } from './enums/request.enum';
+import { PATH_METADATA } from '@nestjs/common/constants';
 
 @Injectable()
 export class PermissionsService {
@@ -24,16 +25,18 @@ export class PermissionsService {
         try {
             const getExistingPermissions = await this.permissionModel.find().select('route method ');
             const routes = this.getRoutes();
+            console.log("routes--->", routes)
             const uniqueRoutes = this.addUniquePermissions(getExistingPermissions, routes);
             const getAdminRole = await this.roleModel.findOne({ role: RoleEnum.SCHOOL_ADMIN });
             // store permissions into DB
             for (const route of uniqueRoutes) {
                 const permissionObj = {
-                    route: `api/v1/${route['path']}`,
+                    route: route['path'],
                     method: RequestMethod[route['method']],
                     role_id: getAdminRole._id,
                     protected: route['protected'] == 'AuthGuardJWT' ? true : false
                 }
+                console.log(permissionObj)
                 await this.permissionModel.create(permissionObj);
             }
             return new ResponseBody(200, 'Permissions added successfully', undefined, true);
@@ -119,7 +122,7 @@ export class PermissionsService {
     private addUniquePermissions(currentPermissions: any[], newPermissions: any[]) {
         let updatedPermissions = [];
         for (const permission of newPermissions) {
-            if (currentPermissions.find((currentPermission) => currentPermission['route'] === `api/v1/${permission['path']}` && currentPermission['method'] === RequestMethod[permission['method']])) continue;
+            if (currentPermissions.find((currentPermission) => currentPermission['route'] === permission['path'] && currentPermission['method'] === RequestMethod[permission['method']])) continue;
             updatedPermissions.push(permission);
         }
         return updatedPermissions
@@ -134,6 +137,7 @@ export class PermissionsService {
             const { instance } = wrapper;
             const prototype = Object.getPrototypeOf(instance);
             const keys = Object.getOwnPropertyNames(prototype);
+            const controllerName = this.reflectorService.get(PATH_METADATA, instance['constructor']);
             // this will get the constructor instance of controller if there is any common guard
             let getCommonAuthInstance = this.reflectorService.get('__guards__', instance['constructor']);
 
@@ -144,7 +148,7 @@ export class PermissionsService {
                     const routeMethod: number = Reflect.getMetadata('method', instance[key]);
                     if (routePath && routeMethod >= 0) {
                         routes.push({
-                            path: routePath,
+                            path: `${controllerName}/${routePath}`,
                             method: routeMethod,
                             protected: getCommonAuthInstance[0].name
                         });
@@ -157,7 +161,7 @@ export class PermissionsService {
                     const guardName = this.reflectorService.get('__guards__', instance[key]);
                     if (routePath && routeMethod >= 0) {
                         routes.push({
-                            path: routePath,
+                            path: `${controllerName}/${routePath}`,
                             method: routeMethod,
                             protected: guardName != undefined ? guardName[0].name : ""
                         });

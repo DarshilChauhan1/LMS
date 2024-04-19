@@ -16,7 +16,6 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { TestsModule } from './tests/tests.module';
 import { CrontasksModule } from './crontasks/crontasks.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { DiscoveryModule, DiscoveryService } from '@nestjs/core';
 
 @Module({
   imports: [AuthModule, ConfigModule.forRoot(), MongooseModule.forRootAsync(MongooseAsyncConfig), UsersModule, BooksModule, AssignmentsModule, ProfilesModule, RolesModule, PermissionsModule, DataseedModule, CloudinaryModule, TestsModule, CrontasksModule, ScheduleModule.forRoot()],

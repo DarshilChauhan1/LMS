@@ -3,11 +3,11 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Book } from './entities/book.entity';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { PipelinePagination, ResponseBody } from 'src/helpers/helper';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { PipelinePagination, ResponseBody } from '../helpers/helper';
 import { SearchItemsDto } from './dto/searchItems.dto';
-import { User } from 'src/users/entities/user.entity';
-import { Profile } from 'src/profiles/entities/profile.entity';
+import { User } from '../users/entities/user.entity';
+import { Profile } from '../profiles/entities/profile.entity';
 import { UpdateBookDto } from './dto/update-book.dto';
 import * as fs from 'node:fs'
 
@@ -53,10 +53,10 @@ export class BooksService {
       // get total count of documents
       const getAllCounts = await this.bookModel.aggregate([{ $count: 'total' }])
       // for search filter and order by functionality in the books
-      const getAllBooks = await this.bookModel.aggregate(pipeline);
+      const allBooks = await this.bookModel.aggregate(pipeline);
       const responseData = {
         totalDocuments: getAllCounts.length > 0 ? getAllCounts[0].total : 0,
-        data: getAllBooks
+        data: allBooks
       }
       return new ResponseBody(200, 'All books received', responseData, true);
     } catch (error) {
@@ -116,7 +116,7 @@ export class BooksService {
         totalDocuments: getAllCounts.length > 0 ? getAllCounts[0].total : 0,
         data: getAllUserBooks
       }
-      return new ResponseBody(200, 'All books received', responseData, true)
+      return new ResponseBody(200, 'All b ooks received', responseData, true)
     } catch (error) {
       throw error
     }

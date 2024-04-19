@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { ResponseBody } from '../helpers/helper';
 import { PlatformEnum } from '../users/enum/platform.enum';
 import { GoogleLogin } from './dto/googleLogin.dto';
+import { response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +22,7 @@ export class AuthService {
         try {
             const { password, username } = payload
             if (username && password) {
-                const user = await this.userModel.findOne({ username }).select('+password');
+                const user = await this.userModel.findOne({ username }).select('+password -role_id ');
                 if (!user) throw new NotFoundException('User not found')
                 const isMatchPasswrord = await bcrypt.compare(password, user.password);
                 if (!isMatchPasswrord) throw new UnauthorizedException('Password is incorrect')
@@ -50,27 +51,31 @@ export class AuthService {
     }
 
     async googleLogin(payload: GoogleLogin) {
-        console.log(payload);
         try {
             const { username, email } = payload;
             const user = await this.userModel.findOne({ $or: [{ email }, { username }], platform_field: PlatformEnum.GOOGLE });
-            console.log(user);
             let responseData = {};
             if (user) {
+                console.log("Enter in if block of google login")
                 responseData['user'] = user
+                responseData['message'] = "User logged in successfully"
+            } else {
+                // if user doesnot exists we create one
+                console.log("Enter in else block of google login")
+                const newUser = await this.userModel.create({ ...payload, platform_field: PlatformEnum.GOOGLE, isActive: true });
+                responseData['user'] = newUser
+                responseData['message'] = "User created successfully and logged in successfully"
             }
-            // if user doesnot exists we create one
-            const newUser = await this.userModel.create({ ...payload, platform_field: PlatformEnum.GOOGLE, isActive : true });
-            console.log(newUser)
-            responseData['user'] = newUser
-            const access_token = await this.generateAccessToken(newUser._id.toString());
-            const refresh_token = await this.generateRefreshToken(newUser._id.toString());
+            console.log(responseData['user']._id.toString())
+            const access_token = await this.generateAccessToken(responseData['user']._id.toString());
+            const refresh_token = await this.generateRefreshToken(responseData['user']._id.toString());
             responseData['access_token'] = access_token;
             responseData['refresh_token'] = refresh_token;
-
-            return new ResponseBody(201, 'User Created Successfully', responseData, true);
+            
+            return new ResponseBody(201, responseData['message'], responseData, true);
         } catch (error) {
             console.log(error);
+            throw error
         }
     }
 
