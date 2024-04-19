@@ -31,7 +31,7 @@ export class PermissionsService {
             // store permissions into DB
             for (const route of uniqueRoutes) {
                 const permissionObj = {
-                    route: route['path'],
+                    route: `/${route['path']}`,
                     method: RequestMethod[route['method']],
                     role_id: getAdminRole._id,
                     protected: route['protected'] == 'AuthGuardJWT' ? true : false
@@ -122,7 +122,7 @@ export class PermissionsService {
     private addUniquePermissions(currentPermissions: any[], newPermissions: any[]) {
         let updatedPermissions = [];
         for (const permission of newPermissions) {
-            if (currentPermissions.find((currentPermission) => currentPermission['route'] === permission['path'] && currentPermission['method'] === RequestMethod[permission['method']])) continue;
+            if (currentPermissions.find((currentPermission) => currentPermission['route'] === `/${permission['path']}` && currentPermission['method'] === RequestMethod[permission['method']])) continue;
             updatedPermissions.push(permission);
         }
         return updatedPermissions

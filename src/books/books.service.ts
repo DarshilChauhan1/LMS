@@ -54,6 +54,7 @@ export class BooksService {
       const getAllCounts = await this.bookModel.aggregate([{ $count: 'total' }])
       // for search filter and order by functionality in the books
       const allBooks = await this.bookModel.aggregate(pipeline);
+      
       const responseData = {
         totalDocuments: getAllCounts.length > 0 ? getAllCounts[0].total : 0,
         data: allBooks
@@ -113,7 +114,7 @@ export class BooksService {
       const getAllUserBooks = await this.bookModel.aggregate(pipeline);
 
       let responseData = {
-        totalDocuments: getAllCounts.length > 0 ? getAllCounts[0].total : 0,
+        totalDocuments: getAllCounts? (getAllCounts.length > 0 ? getAllCounts[0].total : 0) : 0,
         data: getAllUserBooks
       }
       return new ResponseBody(200, 'All b ooks received', responseData, true)
