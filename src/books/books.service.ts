@@ -22,7 +22,8 @@ export class BooksService {
   async getAllBooks(query: SearchItemsDto) {
     try {
       // we can also add limit dynamically
-      const { search, order_by, filter, page, limit } = query;
+      let { search, order_by, filter, page, limit } = query;
+      page = page? page : '1'
       if (parseInt(page) < 1) throw new BadRequestException('Page number should be greater than 0')
       // Pagination
       let skipPages = (page ? (parseInt(page) - 1) : 0) * (parseInt(limit) ? parseInt(limit) : 10)
@@ -70,10 +71,11 @@ export class BooksService {
     try {
       const getUserStandard = await this.profileModel.findOne({ student_id: userId });
       if (!getUserStandard) throw new ConflictException('User not found');
-      console.log(getUserStandard)
-      const { search, order_by, filter, page, limit } = query
+      let { search, order_by, filter, page, limit } = query
 
+      page = page? page : '1'
       const skipPages = page ? (parseInt(page) - 1) * parseInt(limit) ? parseInt(limit) : 10 : 0
+      if (parseInt(page) < 1) throw new BadRequestException('Page number should be greater than 0')
 
       const pipeline: any = [
         {
@@ -117,7 +119,7 @@ export class BooksService {
         totalDocuments: getAllCounts? (getAllCounts.length > 0 ? getAllCounts[0].total : 0) : 0,
         data: getAllUserBooks
       }
-      return new ResponseBody(200, 'All b ooks received', responseData, true)
+      return new ResponseBody(200, 'All books received', responseData, true)
     } catch (error) {
       throw error
     }
@@ -130,7 +132,7 @@ export class BooksService {
       if (findBook) throw new ConflictException('Book already exists');
 
       //file is required
-      if (!file) throw new ConflictException('Please upload a file');
+      if (!file) throw new BadRequestException('Please upload a file');
       const cloudinaryUpload = await this.cloudinaryService.uploadImage(file.path);
       const newBook = await this.bookModel.create({
         author,
@@ -191,16 +193,13 @@ export class BooksService {
       // frontend will send the arrays of book id's
       let user = await this.profileModel.findOne({ student_id: userId }).select('standard');
       if(!user) throw new BadRequestException('Create a profile first to select books')
-      let bookIdsFound = [];
+
 
       // this books will be selected by the user for reading and we will be testing them on the basis of selected books
-      for (const book of books) {
-        const books = await this.bookModel.findOne({ _id: book, standard: user.standard })
-        if (books) bookIdsFound.push(book)
-        continue;
-      }
-      if (bookIdsFound.length === 0) throw new BadRequestException('No book found for the user standard');
-      let updateUser = await this.userModel.findByIdAndUpdate(userId, { $set: { books: bookIdsFound } }, { new: true }).populate('books', 'title author standard pdf').select('-refreshToken -role_id');
+      const allBooks = await this.bookModel.find({ _id : {$in : books},isDeleted: false, standard: user.standard }).select('_id');
+
+      if (allBooks.length === 0) throw new BadRequestException('No book found for the user standard');
+      let updateUser = await this.userModel.findByIdAndUpdate(userId, { $set: { books: allBooks } }, { new: true }).populate('books', 'title author standard pdf').select('-refreshToken -role_id');
       return new ResponseBody(200, 'Books selected successfully', updateUser, true);
     } catch (error) {
       throw error

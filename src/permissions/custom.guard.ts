@@ -17,8 +17,6 @@ export class CustomGuard implements CanActivate{
 
         // todo authentication based on params
         const getUserRole = await this.userModel.findById(userId).select('role_id');
-        console.log(route)
-        console.log(method)
 
         if(!getUserRole) throw new NotFoundException('User not found');
 
