@@ -195,7 +195,7 @@ export class BooksService {
       if(!user) throw new BadRequestException('Create a profile first to select books')
 
 
-      // this books will be selected by the user for reading and we will be testing them on the basis of selected books
+      // this books will be selected by the user for reading and we will be testing them on the basis of selected books 
       const allBooks = await this.bookModel.find({ _id : {$in : books},isDeleted: false, standard: user.standard }).select('_id');
 
       if (allBooks.length === 0) throw new BadRequestException('No book found for the user standard');
